@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "includes/header.html" %}
+
+<body>
+  {% include "includes/nav.html" %}
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel with-nav-tabs panel-default" id="main-panel">
+          <div class="panel-heading" id="main-header">
+            <ul class="nav nav-tabs">   
+              <li {% if navTabActive == 'list' %} class="active" {% endif %}> 
+                <a href="#storesList" data-toggle="tab"> 
+                  <span class = "glyphicon glyphicon-th-list"></span> 
+                  All Stores
+                </a>
+              </li>
+              <li {% if navTabActive == 'add' %} class="active" {% endif %}>
+                <a href="#addStore" data-toggle="tab"> 
+                  <span class = "glyphicon glyphicon-plus"></span> 
+                  Add Store
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="panel-body">
+            <div class="tab-content">
+              <div class="tab-pane fade in {% if navTabActive == 'list' %} active {% endif %}" id="storesList">
+                <br>
+                <div class="col-sm-offset-1 col-sm-10">
+                  <table id="stores" class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</td>
+                            <th>Location</th>
+                            <th>Contacts</th>
+                            <th>Address</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                      {% for store in allStores %}
+                        <tr>
+                          <td>{{store.name}}</td>
+                          <td>{{store.location}}</td>
+                          <td>{{store.contacts}}</td>
+                          <td>{{store.address}}</td>
+                          <td><a href="/item/{{store._id}}"><span class = "glyphicon glyphicon-plus"></span>Add Item</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                          <a href="/items/{{store._id}}"><span class = "glyphicon glyphicon-chevron-right"></span>View Items</a></td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="tab-pane fade in {% if navTabActive == 'add' %} active {% endif %}" id="addStore">
+                <br>
+                
+                {% if status %}
+                  <div class="alert alert-{{status}} alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>{{status}}!:</strong>&nbsp;<span>{{msg}}<br></span>
+                  </div>
+                {% endif %}
+
+                <form class="form-horizontal center" name="login" method="post" action="/store" enctype="multipart/form-data">
+                    <div class="form-group">
+                      <label for="name" class="col-sm-2 control-label">Name</label>
+                      <div class="col-sm-8">
+                        <input class="form-control" name="name" placeholder="Enter Store Name" type="text">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="name" class="col-sm-2 control-label">Icon</label>
+                      <div class="col-sm-8">
+                        <div class="input-group">
+                          <label class="input-group-btn">
+                              <span class="btn btn-primary">
+                                  Browse <input type="file" style="display: none;" name="icon" multiple>
+                              </span>
+                          </label>
+                          <input type="text" class="form-control" readonly>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="name" class="col-sm-2 control-label">Banner</label>
+                      <div class="col-sm-8">
+                        <div class="input-group">
+                          <label class="input-group-btn">
+                              <span class="btn btn-primary">
+                                  Browse <input type="file" style="display: none;" name="icon" multiple>
+                              </span>
+                          </label>
+                          <input type="text" class="form-control" readonly>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="location" class="col-sm-2 control-label">Location</label>
+                      <div class="col-sm-8">
+                        <input class="form-control" name="location" placeholder="Enter Store Location" type="text">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="contacts" class="col-sm-2 control-label">Contacts</label>
+                      <div class="col-sm-8">
+                        <input class="form-control" name="contacts" placeholder="Enter Store Contacts" type="text">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="address" class="col-sm-2 control-label">Address</label>
+                      <div class="col-sm-8">
+                        <input class="form-control" name="address" placeholder="Enter Store Address" type="text">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="minOrder" class="col-sm-2 control-label">Minimum Order</label>
+                      <div class="col-sm-8">
+                        <input class="form-control" name="minOrder" placeholder="Enter Store Minimum Order" type="text">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="delivery" class="col-sm-2 control-label">Delivery</label>
+                      <div class="col-sm-8">
+                        <label>Yes<input  name="deliver" type="radio" value="yes"></label>&nbsp;&nbsp;&nbsp;
+                        <label>No<input  name="deliver" type="radio" value="no"></label>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="deliveryFee" class="col-sm-2 control-label">Delivery Fee</label>
+                      <div class="col-sm-8">
+                        <input class="form-control" name="deliveryFee" placeholder="Enter delivery fee" type="text">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="categories" class="col-sm-2 control-label">Item Categories</label>
+                      <div class="col-sm-8">
+                        <input class="form-control" name="itemCategories" placeholder="Enter item categories separated by comma" type="text">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="recipient" class="col-sm-2 control-label">Working hours</label>
+                      <div class="col-sm-8">
+                        <input class="form-control" name="workHours" placeholder="Enter Store working hours" type="text">
+                      </div>
+                    </div>
+
+
+                    <div class="form-group last">
+                      <div class="col-sm-offset-2 col-sm-8">
+                      <button value="Login"  type="submit" name="submit" id="submit" class="btn btn-success btn-sm"><span class = "glyphicon glyphicon-ok-circle"></span>Add Store</button>
+                      <button type="reset" class="btn btn-warning btn-sm"><span class = "glyphicon glyphicon-remove-circle"></span>Clear</button>
+                    </div>  
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include "includes/footer.html" %}
+
+  <script type="text/javascript">
+    $(function() {
+      $(document).on('change', ':file', function() {
+        var input = $(this),
+            numFiles = input.get(0).files ? input.get(0).files.length : 1,
+            label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+        input.trigger('fileselect', [numFiles, label]);
+      });
+
+      $(document).ready( function() {
+        $(':file').on('fileselect', function(event, numFiles, label) {
+          var input = $(this).parents('.input-group').find(':text'),
+              log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+          if( input.length ) {
+              input.val(log);
+          } else {
+              if( log ) alert(log);
+          }
+        });
+        $('#stores').dataTable();
+      });
+    });
+  </script>
+
+</body>
+</html>

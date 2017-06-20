@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "includes/header.html" %}
+
+<body>
+  {% include "includes/nav.html" %}
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel with-nav-tabs panel-default" id="main-panel">
+          <div class="panel-heading" id="main-header">
+            <ul class="nav nav-tabs">   
+              <li {% if navTabActive == 'list' %} class="active" {% endif %}> 
+                <a href="#itemList" data-toggle="tab"> 
+                  <span class = "glyphicon glyphicon-th-list"></span> 
+                  All Items
+                </a>
+              </li>
+              <li {% if navTabActive == 'add' %} class="active" {% endif %}>
+                <a href="#addItem" data-toggle="tab"> 
+                  <span class = "glyphicon glyphicon-plus"></span> 
+                  Add Item
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="panel-body">
+            <div class="tab-content">
+              <div class="tab-pane fade in {% if navTabActive == 'list' %} active {% endif %}" id="itemList">
+                <h2>Items For {{store.name}} - {{store.location}}</h2>
+                <hr>
+                <br>
+                <br>
+                <div class="col-sm-offset-1 col-sm-10">
+                  <table id="items" class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</td>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Description</th>
+                            <th></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                      {% for item in store.items %}
+                        <tr>
+                          <td>{{item.name}}</td>
+                          <td>{{item.category}}</td>
+                          <td>{{item.description}}</td>
+                          <td>{{item.price}}</td>
+                          <td><a href="/addItem/{{store._id}}"><span class = "glyphicon glyphicon-plus"></span>Edit</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                          <a href="/items/{{store._id}}"><span class = "glyphicon glyphicon-chevron-right"></span>Remove</a></td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="tab-pane fade in {% if navTabActive == 'add' %} active {% endif %}" id="addItem">
+                <h2>Add Item For {{store.name}} - {{store.location}}</h2>
+                <hr>
+                <br>
+                <br>
+                
+                {% if status %}
+                  <div class="alert alert-{{status}} alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>{{status}}!:</strong>&nbsp;<span>{{msg}}<br></span>
+                  </div>
+                {% endif %}
+
+                
+              <form class="form-horizontal center" name="addItem" method="post" action="/item/{{store._id}}" enctype="multipart/form-data">
+
+                  <div class="form-group">
+                    <label for="name" class="col-sm-2 control-label">Name</label>
+                    <div class="col-sm-8">
+                      <input class="form-control" name="itemName" placeholder="Enter Item Name" type="text">
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                      <label for="name" class="col-sm-2 control-label">Icon</label>
+                      <div class="col-sm-8">
+                        <div class="input-group">
+                          <label class="input-group-btn">
+                              <span class="btn btn-primary">
+                                  Browse <input type="file" style="display: none;" name="pic" multiple>
+                              </span>
+                          </label>
+                          <input type="text" class="form-control" readonly>
+                        </div>
+                      </div>
+                    </div>
+
+                  <div class="form-group">
+                    <label for="location" class="col-sm-2 control-label">Category</label>
+                    <div class="col-sm-8">
+                      <select class="form-control" name="itemCategory">
+                        {% for category in store.catergories %}
+                          <option>{{category}}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="address" class="col-sm-2 control-label">Description</label>
+                    <div class="col-sm-8">
+                      <textarea class="form-control" name="itemDescr" rows="5"></textarea>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="price" class="col-sm-2 control-label">Price</label>
+                    <div class="col-sm-8">
+                      <input class="form-control" name="itemPrice" placeholder="Enter Item Price" type="text">
+                    </div>
+                  </div>
+
+                  <div class="form-group last">
+                    <div class="col-sm-offset-2 col-sm-8">
+                    <button value="Login"  type="submit" name="submit" id="submit" class="btn btn-success btn-sm"><span class = "glyphicon glyphicon-ok-circle"></span>Add Item</button>
+                    <button type="reset" class="btn btn-warning btn-sm"><span class = "glyphicon glyphicon-remove-circle"></span>Clear</button>
+                  </div>  
+              </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include "includes/footer.html" %}
+
+  <script type="text/javascript">
+    $(function() {
+      $(document).on('change', ':file', function() {
+        var input = $(this),
+            numFiles = input.get(0).files ? input.get(0).files.length : 1,
+            label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+        input.trigger('fileselect', [numFiles, label]);
+      });
+
+      $(document).ready( function() {
+        $(':file').on('fileselect', function(event, numFiles, label) {
+          var input = $(this).parents('.input-group').find(':text'),
+              log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+          if( input.length ) {
+              input.val(log);
+          } else {
+              if( log ) alert(log);
+          }
+        });
+        $('#items').dataTable();
+      });
+    });
+  </script>
+</body>
+</html>
