@@ -328,7 +328,7 @@ MongoClient.connect('mongodb://bristo:Sihlongo7@ds133162.mlab.com:33162/licando'
     app.use('/', router);
 
     // Start the server listening
-    var server = app.listen(3000, function() {
+    var server = app.listen(process.env.PORT || 5000, function() {
         var port = server.address().port;
         console.log('Licando server listening on port %s.', port);
     });
