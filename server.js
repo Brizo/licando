@@ -6,6 +6,7 @@ var express = require('express'),
     multer  = require('multer'),
     ItemDAO = require('./items').ItemDAO,
     StoreDAO = require('./store').StoreDAO;
+    AdminDAO = require('./admin').AdminDAO;
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -56,6 +57,7 @@ MongoClient.connect('mongodb://localhost:27017/licando', function(err, db) {
 
     var items = new ItemDAO(db);
     var store = new StoreDAO(db);
+    var admin = new AdminDAO(db);
     
     var router = express.Router();
 
@@ -63,8 +65,10 @@ MongoClient.connect('mongodb://localhost:27017/licando', function(err, db) {
     router.get("/", function(req, res) {
         "use strict";
 
-        store.getStores(function(stores) {
-            res.render('home', {allStores: stores, isActive:'stores',navTabActive: 'list'});
+        admin.getLocations(function(locations) {
+            store.getStores(function(stores) {
+                res.render('home', {allStores: stores, allLocations:locations, isActive:'stores',navTabActive: 'list'});
+            });
         });
     });
 
@@ -72,9 +76,21 @@ MongoClient.connect('mongodb://localhost:27017/licando', function(err, db) {
     router.get("/admin", function(req, res) {
         "use strict";
 
-        store.getStores(function(stores) {
-            res.render('admin', {isActive:'admin'});
-            
+        admin.getLocations(function(locations) {
+            res.render('admin', {allLocations: locations, isActive:'admin',navTabActive: 'list'});
+        });
+    });
+
+    // display admin page
+    router.post("/admin", function(req, res) {
+        "use strict";
+
+        var location = {location:req.body.location};
+
+        admin.addLocation(location, function(resp) {
+            admin.getLocations(function(locations) {
+                res.render('admin', {allLocations: locations, isActive:'admin',navTabActive: 'add',status: 'success', msg:'Success : Location Successfully Added'});
+            });
         });
     });
 
@@ -96,7 +112,7 @@ MongoClient.connect('mongodb://localhost:27017/licando', function(err, db) {
         var storeId = req.params.storeId;
 
         store.getStore(storeId, function(store) {
-            res.render('items', {store:store, navTabActive: 'list'});
+            res.render('items', {store:store, navTabActive: 'list', isActive:'stores'});
         });
     });
 
@@ -107,7 +123,55 @@ MongoClient.connect('mongodb://localhost:27017/licando', function(err, db) {
         var storeId = req.params.storeId;
 
         store.getStore(storeId, function(store) {
-            res.render('items', {store:store, navTabActive: 'add'});
+            res.render('items', {store:store, navTabActive: 'add', isActive:'stores'});
+        });
+    });
+
+    // display store to be updated
+    router.get("/updateStore/:storeId", function(req, res) {
+        "use strict";
+
+        var storeId = req.params.storeId;
+
+        store.getStore(storeId, function(store) {
+            res.render('updateStore', {store:store, isActive:'stores'});
+        });
+    });
+
+    // display store to be removed
+    router.get("/removeStore/:storeId", function(req, res) {
+        "use strict";
+
+        var storeId = req.params.storeId;
+
+        store.getStore(storeId, function(store) {
+            res.render('removeStore', {store:store, isActive:'stores'});
+        });
+    });
+
+    // delete store
+    router.post("/removeStore/:storeId", function(req, res) {
+        "use strict";
+
+        var storeId = req.params.storeId;
+
+        store.removeStore(storeId, function(resp) {
+           store.getStores(function(stores) {
+                res.render('home', {allStores: stores, isActive:'stores',navTabActive: 'list', status: 'success', msg:'Success : Store successfully removed'});
+            });
+        });
+    });
+
+    // delete location
+    router.post("/removeLocation/:locationId", function(req, res) {
+        "use strict";
+
+        var locationId = req.params.locationId;
+
+        admin.removeLocation(locationId, function(resp) {
+           admin.getLocations(function(locations) {
+                res.render('admin', {allLocations: locations, isActive:'admin',navTabActive: 'list', status: 'success', msg:'Success : Location successfully removed'});
+            });
         });
     });
 
@@ -134,7 +198,7 @@ MongoClient.connect('mongodb://localhost:27017/licando', function(err, db) {
 
             items.addItem(storeId,formItem, function(oldStore) {
                 store.getStore(storeId, function(newStore) {
-                    res.render('items', {store:newStore, isActive:'items', status: 'success', msg:'Item Successfully added', navTabActive: 'add'});
+                    res.render('items', {store:newStore, isActive:'stores', status: 'success', msg:'Item Successfully added', navTabActive: 'add'});
                 });
             });
         });
@@ -144,13 +208,16 @@ MongoClient.connect('mongodb://localhost:27017/licando', function(err, db) {
         "use strict";
 
         uploadStore(req,res,function(err) {
-            var icon = '/static/uploads/'+req.files[0].filename;
-            var banner = '/static/uploads/'+req.files[1].filename;
-
-            if(err) {
-                return res.end("Error uploading file.");
+            var icon = null;
+            if (req.files[0]) {
+                icon = '/static/uploads/'+req.files[0].filename;
             }
-            
+
+            var banner = null;
+            if (req.files[1]) {
+                banner = '/static/uploads/'+req.files[1].filename;
+            }
+
             var formStore = {};
             formStore['name'] = req.body.name;
             formStore['icon'] = icon;
@@ -163,24 +230,40 @@ MongoClient.connect('mongodb://localhost:27017/licando', function(err, db) {
             formStore['workHours'] = req.body.workHours;
             formStore['minOrder'] = req.body.minOrder;
             formStore['items'] = [];
+    
+            if (formStore['name'] == null || formStore['icon'] == null || formStore['banner'] == null || formStore['location'] == null 
+                ||  formStore['contacts'] == null || formStore['address'] == null || formStore['deliver'] == null || formStore['deliveryFee'] == null 
+                || formStore['workHours'] == null || formStore['minOrder'] == null) {
+                res.render('home', {isActive:'stores', status: 'danger', msg:'Error : Please fill all fields', navTabActive: 'add', form: formStore});
+            } else {
+                
+                if(err) {
+                    return res.end("Error uploading file.");
+                }
 
-            var catergoriesArray = new Array();
-            var itemCategories = req.body.itemCategories;
-            var catergoriesArray = itemCategories.split(',');
-            formStore['catergories'] = catergoriesArray;
+                var catergoriesArray = new Array();
+                var itemCategories = req.body.itemCategories;
+                var catergoriesArray = itemCategories.split(',');
+                formStore['catergories'] = catergoriesArray;
 
-            store.addStore(formStore, function(storeDoc) {
-                store.getStores(function(stores) {
-                   var stores = stores;
-                   console.log(stores);
-                   res.render('home', {allStores: stores, isActive:'stores', status: 'success', msg:'Store Successfully added', navTabActive: 'add'});
-                })
-            });
+                if (store.storeExist(formStore.name, formStore.location)) {
+                    res.render('home', {isActive:'stores', status: 'danger', msg:'Error : Store Already Exist', navTabActive: 'add', form: formStore});
+                } else {
+                    store.addStore(formStore, function(storeDoc) {
+                        admin.getLocations(function(locations) {
+                            store.getStores(function(stores) {
+                               res.render('home', {allStores: stores, isActive:'stores',allLocations:locations, status: 'success', msg:'Success : Store Successfully added', navTabActive: 'add'});
+                            })
+                        })
+                    });
+                }
+                
+            }
         });        
     });
 
     // update store
-    router.put("/store:storeId", function(req, res) {
+    router.put("/store/:storeId", function(req, res) {
         "use strict";
 
         var storeId = req.params.storeId;
@@ -192,7 +275,7 @@ MongoClient.connect('mongodb://localhost:27017/licando', function(err, db) {
     });
 
     // update item
-    router.put("/item:storeId", function(req, res) {
+    router.put("/item/:storeId", function(req, res) {
         "use strict";
 
         var itemId = req.params.itemId;
@@ -203,19 +286,8 @@ MongoClient.connect('mongodb://localhost:27017/licando', function(err, db) {
         });
     });
 
-    // delete store
-    router.delete("/store:storeId", function(req, res) {
-        "use strict";
-
-        var storeId = req.params.storeId;
-
-        store.removeStore(storeId, function(resp) {
-            console.log(resp);
-        });
-    });
-
     // remove item
-    router.delete("/item:storeId", function(req, res) {
+    router.delete("/item/:storeId", function(req, res) {
         "use strict";
 
         var itemId = req.params.itemId;
@@ -231,6 +303,14 @@ MongoClient.connect('mongodb://localhost:27017/licando', function(err, db) {
 
         store.getStores(function(stores) {
             res.json(stores);
+        });
+    });
+
+    router.get("/api/locations", function(req, res) {
+        "use strict";
+
+        admin.getLocations(function(locations) {
+            res.json(locations);
         });
     });
 

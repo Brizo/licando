@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include "includes/header.html" %}
+
+<body>
+  {% include "includes/nav.html" %}
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h2>Confirm Store Removal</h2>
+        <br>
+        <hr>
+        <div class="well well-sm">
+          <br>
+          <form class="form-horizontal center" name="removeStore" method="post" action="/removeStore/{{store._id}}">
+            <p>Name : {{store.name}}</p>
+            <p>Location : {{store.location}}</p>
+            <br>
+            <p>
+              <button class="btn btn-primary btn-large" type="submit" name="submit">
+                Proceed
+              </button>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include "includes/footer.html" %}
+
+</body>
+</html>

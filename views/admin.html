@@ -4,20 +4,97 @@
 {% include "includes/header.html" %}
 
 <body>
-    {% include "includes/nav.html" %}
+  {% include "includes/nav.html" %}
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Licando Administration</h2>
-                <hr>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel with-nav-tabs panel-default" id="main-panel">
+          <div class="panel-heading" id="main-header">
+            <ul class="nav nav-tabs">   
+              <li {% if navTabActive == 'list' %} class="active" {% endif %}> 
+                <a href="#LocList" data-toggle="tab"> 
+                  <span class = "glyphicon glyphicon-th-list"></span> 
+                  All Locations
+                </a>
+              </li>
+              <li {% if navTabActive == 'add' %} class="active" {% endif %}>
+                <a href="#addLoc" data-toggle="tab"> 
+                  <span class = "glyphicon glyphicon-plus"></span> 
+                  Add Location
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="panel-body">
+            <div class="tab-content">
+              <div class="tab-pane fade in {% if navTabActive == 'list' %} active {% endif %}" id="LocList">
                 <br>
-                <p>System configurations will go here</p> 
+                {% if status %}
+                  <div class="alert alert-{{status}} alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong><span>{{msg}}<br></span></strong>
+                  </div>
+                {% endif %}
+                <div class="col-sm-offset-1 col-sm-10">
+                  <table id="locations" class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Location</td>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                      {% for location in allLocations %}
+                        <tr>
+                          <td>{{location.location}}</td>
+                          <td>
+                          <form method="post" action="/removeLocation/{{location._id}}">
+                            <button class="btn btn-danger"><span class = "glyphicon glyphicon-trash" ></span>Remove</a></button></td>
+                          </form>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="tab-pane fade in {% if navTabActive == 'add' %} active {% endif %}" id="addLoc">
+                <br>
+                
+                {% if status %}
+                  <div class="alert alert-{{status}} alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong><span>{{msg}}<br></span></strong>
+                  </div>
+                {% endif %}
+
+                <form class="form-horizontal center" name="login" method="post" action="/admin">
+
+                    <div class="form-group">
+                      <label for="location" class="col-sm-2 control-label">Location</label>
+                      <div class="col-sm-8">
+                        <input class="form-control" name="location" placeholder="Enter Location Name" type="text" value="{{location}}">
+                      </div>
+                    </div>
+
+
+                    <div class="form-group last">
+                      <div class="col-sm-offset-2 col-sm-8">
+                      <button value="Login"  type="submit" name="submit" id="submit" class="btn btn-success btn-sm"><span class = "glyphicon glyphicon-ok-circle"></span>Add Location</button>
+                      <button type="reset" class="btn btn-warning btn-sm"><span class = "glyphicon glyphicon-remove-circle"></span>Clear</button>
+                    </div>  
+                </form>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-    {% include "includes/footer.html" %}
+  {% include "includes/footer.html" %}
+
 </body>
-
 </html>

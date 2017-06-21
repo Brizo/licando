@@ -1,4 +1,4 @@
-<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+<nav class="navbar navbar-inverse bg-primary navbar-fixed-top" role="navigation" style="font-family: serif; font-size: 19px;font: #FFFAF0; font-weight: bold">
     <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
@@ -7,16 +7,16 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/" style="color: #fff;">Licando</a>
+            <a class="navbar-brand" href="/" style="color: #FFFAF0;">Licando</a>
         </div>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                 <li {% if isActive == "stores" %} class="active" {% endif %}>
-                    <a href="/">Stores</a>
+                    <a href="/" style="color: #FFFAF0;" class="myAchor">Stores</a>
                 </li>
                 <li {% if isActive == "admin" %} class="active" {% endif %} >
-                    <a href="/admin">Administration</a>
+                    <a href="/admin" style="color: #FFFAF0;">Administration</a>
                 </li>
             </ul>
         </div>

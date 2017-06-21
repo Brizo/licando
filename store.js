@@ -35,6 +35,18 @@ function StoreDAO(database) {
         });
     }
 
+    this.storeExist = function(name, location) {
+        this.db.collection("stores").find({name:name, location:location}).toArray(function(err, result) {
+            assert.equal(null, err);
+            if (result.length > 0) {
+                return true;
+            } else {
+                return false;
+            }
+            
+        });
+    }
+
 
     this.updateStore = function(userId, store, callback) {
         "use strict";
@@ -52,9 +64,9 @@ function StoreDAO(database) {
     this.removeStore = function(storeId, callback) {
         "use strict";
 
-        this.db.collection("stores").remove({_id: storeId}, function(err, result) {
+        this.db.collection("stores").remove({_id: ObjectId(storeId)}, function(err, result) {
             assert.equal(null, err);
-            callback(result.value);
+            callback(result);
         });
     }
 }
