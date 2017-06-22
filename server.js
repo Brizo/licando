@@ -329,7 +329,7 @@ MongoClient.connect('mongodb://localhost/licando', function(err, db) {
     app.use('/', router);
 
     // Start the server listening
-    var server = app.listen(process.env.PORT || 5000, function() {
+    var server = app.listen(process.env.PORT || 8080, function() {
         var port = server.address().port;
         console.log('Licando server listening on port %s.', port);
     });
