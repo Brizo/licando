@@ -49,7 +49,8 @@ env.addFilter("date", nunjucksDate);
 
 var ITEMS_PER_PAGE = 5;
 
-MongoClient.connect('mongodb://bristo:Sihlongo7@ds133162.mlab.com:33162/licando', function(err, db) {
+//MongoClient.connect('mongodb://bristo:Sihlongo7@ds133162.mlab.com:33162/licando', function(err, db) {
+MongoClient.connect('mongodb://localhost/licando', function(err, db) {
     "use strict";
 
     assert.equal(null, err);
